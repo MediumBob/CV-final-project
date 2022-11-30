@@ -7,16 +7,16 @@
 % images, and uses the provided Adaboost code to train the face detector
 
 %% - preprocessing
-clear all; close all;
+%clear all; close all;
 s = filesep;
-repo_path = 'C:\Users\Bobby King\Desktop\Computer Vision\Git\cs4337-fall2022'; % change this as needed
-addpath([repo_path s 'Code' s '00_common' s '00_detection'])
-addpath([repo_path s 'Code' s '00_common' s '00_images'])
-addpath([repo_path s 'Code' s '00_common' s '00_utilities'])
-addpath([repo_path s 'Code' s '17_boosting'])
-addpath([repo_path s 'Data' s '00_common_data' s 'frgc2_b'])
-
-load directories.mat
+addpath(code_directory); addpath(data_directory); addpath(training_directory);
+%repo_path = 'C:\Users\Bobby King\Desktop\Computer Vision\Git\cs4337-fall2022'; % change this as needed
+%addpath([repo_path s 'Code' s '00_common' s '00_detection'])
+%addpath([repo_path s 'Code' s '00_common' s '00_images'])
+%addpath([repo_path s 'Code' s '00_common' s '00_utilities'])
+%addpath([repo_path s 'Code' s '17_boosting'])
+%addpath([repo_path s 'Data' s '00_common_data' s 'frgc2_b'])
+%load directories.mat
 
 
 %% Create the training dataset and compute integral images
@@ -77,114 +77,10 @@ end
 %nonfaces_labels = zeros(1,size(imgs,1)*num_windows);
 
 %%
-
-%{
-% testing evaluation of a random classifier of type 1.
-
-wc = generate_classifier1(face_vertical, face_horizontal); 
-disp(wc); 
-disp(wc{1}); 
-disp(wc{2});
-
-% disp(wc{9});
-%%%
-
-index = 1;
-face = faces(:,:,index);
-integral = face_integrals(:, :, index);
-
-response = eval_weak_classifier(wc, integral);
-
-% verification:
-top = wc{7};
-left = wc{8};
-bottom = top + wc{5} - 1;
-right = left + 2 * wc{6} - 1;
-rec_filter = wc{9};
-response2 = sum(sum(face(top:bottom, left:right) .* rec_filter));
-
-
-%%
-
-% testing evaluation of a random classifier of type 2.
-
-wc = generate_classifier2(face_vertical, face_horizontal); 
-disp(wc); 
-disp(wc{1}); 
-disp(wc{2});
-
-%%%
-
-index = 1;
-face = faces(:,:,index);
-integral = face_integrals(:, :, index);
-
-response = eval_weak_classifier(wc, integral);
-
-% verification:
-top = wc{7};
-left = wc{8};
-bottom = top + 2 * wc{5} - 1;
-right = left + 1 * wc{6} - 1;
-rec_filter = wc{9};
-response2 = sum(sum(face(top:bottom, left:right) .* rec_filter));
-
-
-%%
-
-% testing evaluation of a random classifier of type 3.
-
-wc = generate_classifier3(face_vertical, face_horizontal); 
-disp(wc); 
-disp(wc{1}); 
-disp(wc{2});
-
-%%%
-
-index = 1;
-face = faces(:,:,index);
-integral = face_integrals(:, :, index);
-
-response = eval_weak_classifier(wc, integral);
-
-% verification:
-top = wc{7};
-left = wc{8};
-bottom = top + 1 * wc{5} - 1;
-right = left + 3 * wc{6} - 1;
-rec_filter = wc{9};
-response2 = sum(sum(face(top:bottom, left:right) .* rec_filter));
-
-
-%%
-
-% testing evaluation of a random classifier of type 4.
-
-wc = generate_classifier4(face_vertical, face_horizontal); 
-disp(wc); 
-disp(wc{1}); 
-disp(wc{2});
-
-%%%
-
-index = 1;
-face = faces(:,:,index);
-integral = face_integrals(:, :, index);
-
-response = eval_weak_classifier(wc, integral);
-
-% verification:
-top = wc{7};
-left = wc{8};
-bottom = top + 3 * wc{5} - 1;
-right = left + 1 * wc{6} - 1;
-rec_filter = wc{9};
-response2 = sum(sum(face(top:bottom, left:right) .* rec_filter));
-%}
-%%
+% convert to ints for generate_classifier function
+%face_vertical = uint8(face_vertical); face_horizontal = uint8(face_horizontal);
 
 % choosing a set of random weak classifiers
-
 number = 1000;
 weak_classifiers = cell(1, number);
 for i = 1:number
@@ -284,10 +180,6 @@ boosted_classifier = AdaBoost(responses, labels, 15);
 
 %%
 
-%save boosted15 boosted_classifier
-
-%%
-
 %load faces1000;
 %load nonfaces1000;
 
@@ -330,6 +222,7 @@ tic; [result, boxes] = boosted_detector_demo(photo2, 1, boosted_classifier, weak
 figure(2); imshow(result, []);
 
 %%
+
 
 % load a photograph
 photo = read_gray('faces4.bmp');
@@ -377,4 +270,25 @@ figure(1); imshow(photo, []);
 figure(2); imshow(result, [])
 % rank of correct result using normalized correlation is 1.
 
-%%
+
+%% run our detector over the images in the test faces directory
+%{
+% read images into a matrix
+path = strcat(training_directory, s, "test_face_photos");
+ds = imageDatastore(path);
+imgs = readall(ds);
+% init faces for testing dataset
+test_faces = zeros(face_vertical,face_horizontal,size(imgs,1));
+% convert from cell to matrix
+for i=1:size(imgs,1)
+    temp_img = imgs{i};
+    orig_size = size(temp_img);
+    temp_img = imresize(temp_img, face_size); % resize to 100x100
+    temp_img = rgb2gray(temp_img);
+    test_faces(:,:,i) = temp_img;
+    tic; result = boosted_multiscale_search(test_faces(:,:,i), 1, boosted_classifier, weak_classifiers, face_size); toc
+    figure(2); imshow(result, []);
+    figure(3); imshow(max((result > 4) * 255, test_faces(:,:,i) * 0.5), [])
+end
+%}
+
