@@ -4,8 +4,8 @@
 
 %%
 
-data_directory = 'C:\Users\Bobby King\Desktop\Computer Vision\Git\Final-Project\Results';
+data_directory = '/Users/kevin/Library/CloudStorage/OneDrive-TexasStateUniversity/ComputerVision/CV-final-project/training_test_data';
 
-code_directory = 'C:\Users\Bobby King\Desktop\clean_cv_repo\CV-final-project\Code';
+code_directory = '/Users/kevin/Library/CloudStorage/OneDrive-TexasStateUniversity/ComputerVision/CV-final-project';
 
-training_directory = 'C:\Users\Bobby King\Desktop\clean_cv_repo\CV-final-project\training_test_data';
+training_directory = '/Users/kevin/Library/CloudStorage/OneDrive-TexasStateUniversity/ComputerVision/CV-final-project/training_result';

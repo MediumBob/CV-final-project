@@ -3,15 +3,16 @@
 % Members: Robert Elizondo, Kevin Garcia Lopez, Jacob Lopez
 
 %% - preprocessing
-
 s = filesep;
 directories;
 addpath(code_directory)
+addpath(data_directory)
+addpath (code_directory, s, 'Code')
 
 %% load the training dataset - if it does not exist, create it
 
 if (~isfile('trainingdataset.mat')) 
-   testingdata;
+   trainingdata;
 else 
     load trainingdataset.mat
 end
@@ -58,7 +59,7 @@ weights = ones(example_number, 1) / example_number;
 % next line takes about 8.5 seconds.
 tic; [index error threshold] = find_best_classifier(responses, labels, weights); toc
 %disp([index error]);
-boosted_classifier = AdaBoost(responses, labels, 15);
+boosted_classifier = AdaBoost(responses, labels, 10);
 
 save classifiers.mat boosted_classifier weak_classifiers labels
 
