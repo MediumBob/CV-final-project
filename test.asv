@@ -40,7 +40,7 @@ for i=1:size(imgs,1)
         falseNeg = falseNeg +1;
     end
 end
-cropped_faces_accuracy = ((size(imgs,1) - falsePos - falseNeg)/size(imgs,1)) * 100;
+cropped_faces_accuracy = (hit/size(imgs,1)) * 100;
 
 %% check accuracy for non-faces
 path = strcat(training_directory, s, "test_nonfaces");
@@ -64,33 +64,7 @@ for i=1:size(imgs,1)
         falseNeg = falseNeg +1;
     end
 end
-nonfaces_accuracy = ((size(imgs,1) - falsePos - falseNeg)/size(imgs,1)) * 100;
-
-%% check accuracy for non-faces
-path = strcat(training_directory, s, "test_face_photos");
-ds = imageDatastore(path);
-imgs = readall(ds);
-% 
-hit = 0;
-miss = 0;
-falsePos = 0;
-falseNeg = 0;
-threshold = 1;
-for i=1:size(imgs,1)
-    temp_img = imgs{i};
-    result = apply_classifier_aux(temp_img, boosted_classifier, weak_classifiers, [100 100]);
-    sorted = sort(result(:));
-    [r,c] = find(sorted(length(sorted)) == result);
-    max = result(r(1),c(1));
-    if max > threshold && labels(i,1) == -1
-        falsePos = falsePos +1;
-    elseif max < threshold && labels(i,1) == 1
-        falseNeg = falseNeg +1;
-    end
-end
-faces_accuracy = ((size(imgs,1) - falsePos - falseNeg)/size(imgs,1)) * 100;
-
-
+nonfaces_accuracy = (hit/size(imgs,1)) * 100;
 
 %%
 % 

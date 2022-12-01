@@ -16,7 +16,7 @@ else
     load trainingdataset.mat
 end
 
-%% get weak classifiers
+%% 
 
 number = 1000;
 face_horizontal = 100;
@@ -27,7 +27,6 @@ for i = 1:number
     weak_classifiers{i} = generate_classifier(face_vertical, face_horizontal);
 end
 
-%% precompute responses of all training examples on all weak classifiers
 example_number = size(faces, 3) + size(nonfaces, 3);
 labels = zeros(example_number, 1);
 labels (1:size(faces, 3)) = 1;
@@ -49,16 +48,5 @@ for example = 1:example_number
     disp(example)
 end
 
-%% get weights
-
-weights = ones(example_number, 1) / example_number;
-cl = random_number(1, 1000)
-[error, thr, alpha] = weighted_error(responses, labels, weights, cl)
-weights = ones(example_number, 1) / example_number;
-% next line takes about 8.5 seconds.
-tic; [index error threshold] = find_best_classifier(responses, labels, weights); toc
-%disp([index error]);
 boosted_classifier = AdaBoost(responses, labels, 15);
-
 save classifiers.mat boosted_classifier weak_classifiers labels
-

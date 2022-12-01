@@ -1,3 +1,9 @@
+% CS4337.001 - Computer Vision - Dr. Metsis
+% Group 3 Final Project
+% Members: Robert Elizondo, Kevin Garcia Lopez, Jacob Lopez
+
+%% preprocessing
+
 clear all; 
 close all;
 s = filesep;
